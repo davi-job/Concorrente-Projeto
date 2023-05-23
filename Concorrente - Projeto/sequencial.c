@@ -66,8 +66,6 @@ int main(int argc, char** argv) {
 */
 }
 
-//1 2 3 3 5 5 6 6 7 9 
-
 int *gerar_vetor_inteiro(int n) {
     int *vetor;
     int i;
