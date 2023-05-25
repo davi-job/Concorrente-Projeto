@@ -3,9 +3,10 @@
 
 int *gerar_vetor_inteiro(int n);
 
+int tam = 100000;
+
 int main(int argc, char** argv) {
 
-    int tam = 10000;
     int count[tam];
     int *arr;
 
@@ -53,7 +54,7 @@ int main(int argc, char** argv) {
         
     }
 
-/*
+
     for (int i = 0; i < tam; i++)
     {
         printf("%d,", arr[i]);
@@ -63,7 +64,7 @@ int main(int argc, char** argv) {
     {
         printf("%d, ", sortedArr[i]);
     }
-*/
+
 }
 
 int *gerar_vetor_inteiro(int n) {
@@ -71,7 +72,7 @@ int *gerar_vetor_inteiro(int n) {
     int i;
     vetor = (int *)malloc(sizeof(int) * n);
     for (i=0;i<n;i++) {
-        int num = (rand() % 10000);
+        int num = (rand() % tam);
         vetor[i] = num;
     }
     return vetor;
