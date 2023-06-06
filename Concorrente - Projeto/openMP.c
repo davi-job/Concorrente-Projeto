@@ -50,22 +50,19 @@ int main(int argc, char** argv) {
                 }
             }
         }
-
-        int ultimoNaoZero = 0;
-
-        #pragma omp for
-        for(int i = 0; i < tam; i++){
-            if (sortedArr[i] != 0)
-            {
-                ultimoNaoZero = sortedArr[i];
-            }else
-            {
-                sortedArr[i] = ultimoNaoZero;
-            }
-        }
     }
 
+    int ultimoNaoZero = 0;
 
+    for(int i = 0; i < tam; i++){
+        if (sortedArr[i] != 0)
+        {
+            ultimoNaoZero = sortedArr[i];
+        }else
+        {
+            sortedArr[i] = ultimoNaoZero;
+        }
+    }
 
     for (int i = 0; i < tam; i++)
     {
