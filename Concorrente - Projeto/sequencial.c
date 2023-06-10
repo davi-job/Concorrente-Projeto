@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 int *gerar_vetor_inteiro(int n);
 
@@ -11,33 +12,23 @@ int main(int argc, char** argv) {
     int *arr;
 
     int sortedArr[tam];
+    time_t t;
+    srand(time(NULL));
     
     arr = gerar_vetor_inteiro(tam);
 
-    for (int i = 0; i < tam; i++){
-        count[i] = 0;
-    }
-
-    for (int i = 0; i < tam; i++){
-        sortedArr[i] = 0;
-    }
-
     for(int i = 0; i < tam; i++){
+        count[i] = 0;
+        sortedArr[i] = 0;
         for (int j = 0; j < tam; j++){
             if(arr[i] > arr[j]){
-
                 count[i]++;
             }
         }
     }
 
     for (int i = 0; i < tam; i++){
-        for (int j = 0; j < tam; j++)
-        {
-            if(count[i] == j){
-                sortedArr[j] = arr[i];
-            }
-        }
+       sortedArr[count[i]] = arr[i];
     }
 
     int ultimoNaoZero = 0;
@@ -53,8 +44,7 @@ int main(int argc, char** argv) {
         
         
     }
-
-
+    /*
     for (int i = 0; i < tam; i++)
     {
         printf("%d,", arr[i]);
@@ -64,7 +54,7 @@ int main(int argc, char** argv) {
     {
         printf("%d, ", sortedArr[i]);
     }
-
+    */
 }
 
 int *gerar_vetor_inteiro(int n) {

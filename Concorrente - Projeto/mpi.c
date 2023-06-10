@@ -1,119 +1,78 @@
-#include <mpi.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <mpi.h>
 
-#define tam 100
-
-int *gerar_vetor_inteiro(int n);
+#define tam 100000
 
 int main(int argc, char** argv) {
-    int rank, size;
-    int *arr;
-    int *sortedArr;
-    int *count;
-    int *local_count;
-    int *local_sortedArr;
-    int local_size;
 
     MPI_Init(NULL, NULL);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int nprocs;
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    int meu_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &meu_rank);
 
-    // Calcula o tamanho do vetor para cada processo
-    local_size = tam / size;
+    int i = 0;
+    int partialCount[tam];
+    int count[tam];
+    int *arr;
+    int sortedArr[tam];
+    time_t t;
+    srand(time(NULL));
 
-    // Aloca espaço para os vetores locais
-    arr = gerar_vetor_inteiro(tam);
-    local_count = (int*) calloc(local_size, sizeof(int));
-    local_sortedArr = (int*) malloc(local_size * sizeof(int));
+    if(meu_rank == 0){
+        //gerando o vetor aleatório
+        arr = (int *)malloc(sizeof(int) * tam);
+        for (i=0;i<tam;i++) {
+            int num = (rand() % tam);
+            arr[i] = num;
+        }
+    }
 
-    // Scatter do vetor original
-    MPI_Scatter(arr, local_size, MPI_INT, local_sortedArr, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(arr, tam, MPI_INT, 0, MPI_COMM_WORLD);
 
-    // Cada processo conta as ocorrências dos elementos em seu trecho do vetor
-    for(int i = 0; i < local_size; i++){
-        for(int j = 0; j < tam; j++){
-            if(local_sortedArr[i] > arr[j]){
-                local_count[i]++;
+    for(i = 0; i < tam; i++){
+        partialCount[i] = 0;
+        count[i] = 0;
+        sortedArr[i] = 0;
+        for (int j = meu_rank; j < tam; j+=nprocs){
+            if(arr[i] > arr[j]){
+                partialCount[i]++;
             }
         }
     }
 
-    // Gather das contagens parciais em um único vetor global
-    if(rank == 0){
-        count = (int*) calloc(tam, sizeof(int));
-    }
-    MPI_Gather(local_count, local_size, MPI_INT, count, local_size, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Reduce(partialCount, count, tam, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    // Processo 0 calcula as posições dos elementos no vetor ordenado
-    if(rank == 0){
-        sortedArr = (int*) malloc(tam * sizeof(int));
-        for(int i = 0; i < tam; i++){
-            for(int j = 0; j < tam; j++){
-                if(arr[i] > arr[j]){
-                    count[i]++;
-                }
-            }
-        }
-        for(int i = 0; i < tam; i++){
+    if(meu_rank == 0){
+        for (i = 0; i < tam; i++){
             sortedArr[count[i]] = arr[i];
         }
-    }
-
-    // Scatter do vetor ordenado
-    MPI_Scatter(sortedArr, local_size, MPI_INT, local_sortedArr, local_size, MPI_INT, 0, MPI_COMM_WORLD);
-
-    // Cada processo constroi seu trecho do vetor ordenado com base nas posições calculadas
-    for(int i = 0; i < local_size; i++){
-        int pos = local_count[i];
-        for(int j = 0; j < tam; j++){
-            if(count[j] == pos){
-                local_sortedArr[i] = arr[j];
-                break;
-            }
-        }
-    }
-
-    // Gather dos vetores ordenados parciais em um único vetor global
-    MPI_Gather(local_sortedArr, local_size, MPI_INT, sortedArr, local_size, MPI_INT, 0, MPI_COMM_WORLD);
-
-    // Processo 0 atualiza os elementos nulos do vetor ordenado final
-    if(rank == 0){
         int ultimoNaoZero = 0;
 
         for(int i = 0; i < tam; i++){
-            if (sortedArr[i] != 0){
+            if (sortedArr[i] != 0)
+            {
                 ultimoNaoZero = sortedArr[i];
-            }else{
+            }else
+            {
                 sortedArr[i] = ultimoNaoZero;
             }
         }
-
-        printf("Vetor original:\n");
+        /*
         for (int i = 0; i < tam; i++)
         {
             printf("%d,", arr[i]);
         }
         printf("\n");
-
-        printf("Vetor ordenado:\n");
         for (int i = 0; i < tam; i++)
         {
             printf("%d, ", sortedArr[i]);
         }
+        printf("\n");
+        */
     }
 
     MPI_Finalize();
-    return 0;
-}
-
-int *gerar_vetor_inteiro(int n) {
-    int *vetor;
-    int i;
-    vetor = (int *)malloc(sizeof(int) * n);
-    for (i=0;i<n;i++) {
-        int num = (rand() % tam);
-        vetor[i] = num;
-    }
-    return vetor;
 }
