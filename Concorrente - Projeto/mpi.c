@@ -22,8 +22,6 @@ int main(int argc, char** argv) {
     time_t t;
     srand(time(NULL));
 
-    double inicio = MPI_Wtime();
-
     if(meu_rank == 0){
         //gerando o vetor aleatório
         for (i=0;i<tam;i++) {
@@ -75,7 +73,5 @@ int main(int argc, char** argv) {
         printf("\n");
         */
     }
-    double fim = MPI_Wtime();
-    printf("%f", fim-inicio);
     MPI_Finalize();
 }
