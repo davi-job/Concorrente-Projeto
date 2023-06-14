@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     int i = 0;
     int partialCount[tam];
     int count[tam];
-    int *arr;
+    int *arr = (int *)malloc(sizeof(int) * tam);
     int sortedArr[tam];
     time_t t;
     srand(time(NULL));
@@ -26,13 +26,10 @@ int main(int argc, char** argv) {
 
     if(meu_rank == 0){
         //gerando o vetor aleatório
-        arr = (int *)malloc(sizeof(int) * tam);
         for (i=0;i<tam;i++) {
             int num = (rand() % tam);
             arr[i] = num;
         }
-    }else{
-        arr = (int *)malloc(sizeof(int) * tam);
     }
 
     MPI_Bcast(arr, tam, MPI_INT, 0, MPI_COMM_WORLD);
