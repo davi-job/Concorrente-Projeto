@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <mpi.h>
+#include <omp.h>
 
-#define tam 100000
+#define tam 10000
 
 int main(int argc, char** argv) {
 
@@ -21,6 +22,8 @@ int main(int argc, char** argv) {
     time_t t;
     srand(time(NULL));
 
+    double inicio = MPI_Wtime();
+
     if(meu_rank == 0){
         //gerando o vetor aleatório
         arr = (int *)malloc(sizeof(int) * tam);
@@ -28,6 +31,8 @@ int main(int argc, char** argv) {
             int num = (rand() % tam);
             arr[i] = num;
         }
+    }else{
+        arr = (int *)malloc(sizeof(int) * tam);
     }
 
     MPI_Bcast(arr, tam, MPI_INT, 0, MPI_COMM_WORLD);
@@ -73,6 +78,7 @@ int main(int argc, char** argv) {
         printf("\n");
         */
     }
-
+    double fim = MPI_Wtime();
+    printf("%f", fim-inicio);
     MPI_Finalize();
 }
